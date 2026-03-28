@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
+    <title>Cuestionario: Comparativa de Placas Arduino</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(145deg, #0b1120 0%, #111827 100%);
+            font-family: 'Segoe UI', 'Roboto', system-ui, -apple-system, sans-serif;
+            padding: 1rem;
+            color: #eef2ff;
+            min-height: 100vh;
+        }
+
+        .quiz-container {
+            max-width: 1100px;
+            margin: 0 auto;
+            background: rgba(20, 28, 45, 0.85);
+            backdrop-filter: blur(2px);
+            border-radius: 2rem;
+            box-shadow: 0 20px 35px -12px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(59, 130, 246, 0.3);
+            padding: 1.5rem;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 1.5rem;
+            border-bottom: 2px solid #2a3b66;
+            padding-bottom: 1rem;
+        }
+
+        .header h1 {
+            font-size: 1.8rem;
+            background: linear-gradient(135deg, #b0d4ff, #4f9eff);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+            letter-spacing: -0.3px;
+        }
+
+        .sub {
+            color: #99a7c9;
+            font-size: 0.9rem;
+            margin-top: 0.3rem;
+        }
+
+        .instructions {
+            background: #0f172ed9;
+            padding: 0.8rem 1rem;
+            border-radius: 1rem;
+            margin-bottom: 1.5rem;
+            border-left: 4px solid #3b82f6;
+            font-size: 0.85rem;
+            line-height: 1.4;
+        }
+
+        .score-bar {
+            background: #030717;
+            border-radius: 2rem;
+            padding: 0.6rem 1rem;
+            text-align: center;
+            font-weight: bold;
+            font-size: 1rem;
+            border: 1px solid #2e4a7a;
+            margin-bottom: 1.5rem;
+        }
+
+        .question-card {
+            background: #11182dd9;
+            border-radius: 1.2rem;
+            margin-bottom: 1.5rem;
+            padding: 1rem 1.2rem;
+            transition: all 0.2s ease;
+            border: 1px solid #2a3860;
+        }
+
+        .question-text {
+            font-weight: 600;
+            font-size: 1rem;
+            margin-bottom: 0.8rem;
+            color: #eef3ff;
+            display: flex;
+            align-items: baseline;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .q-num {
+            background: #2a3e6b;
+            border-radius: 30px;
+            padding: 0.2rem 0.7rem;
+            font-size: 0.75rem;
+            font-weight: 500;
+            white-space: nowrap;
+        }
+
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 0.6rem;
+        }
+
+        .option {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+            cursor: pointer;
+            padding: 0.5rem 0.7rem;
+            border-radius: 1rem;
+            transition: background 0.15s;
+            background: #0b1125;
+            border: 1px solid #2a345b;
+        }
+
+        .option:hover {
+            background: #1a2442;
+            border-color: #5a7dcf;
+        }
+
+        input[type="radio"] {
+            appearance: none;
+            -webkit-appearance: none;
+            width: 1.1rem;
+            height: 1.1rem;
+            border: 2px solid #6c80b0;
+            border-radius: 50%;
+            margin-top: 0.1rem;
+            cursor: pointer;
+            background: #0f1428;
+            transition: 0.1s;
+            flex-shrink: 0;
+        }
+
+        input[type="radio"]:checked {
+            background-color: #2c7be5;
+            border-color: #2c7be5;
+            box-shadow: inset 0 0 0 3px #0f1428;
+        }
+
+        .option label {
+            flex: 1;
+            font-size: 0.9rem;
+            line-height: 1.4;
+            cursor: pointer;
+            color: #dfe7ff;
+            word-break: break-word;
+            overflow-wrap: break-word;
+        }
+
+        .feedback {
+            margin-top: 0.8rem;
+            padding: 0.6rem 0.8rem;
+            border-radius: 0.8rem;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: flex-start;
+            gap: 0.5rem;
+            background: #0a1122aa;
+            border-left: 4px solid;
+            word-break: break-word;
+            overflow-wrap: break-word;
+        }
+
+        .feedback.correct {
+            border-left-color: #22c55e;
+            background: #0a2a1e40;
+        }
+
+        .feedback.incorrect {
+            border-left-color: #ef4444;
+            background: #2a1a1e40;
+        }
+
+        .feedback-icon {
+            font-size: 1rem;
+            flex-shrink: 0;
+        }
+
+        .feedback span:last-child {
+            flex: 1;
+        }
+
+        .button-group {
+            display: flex;
+            justify-content: center;
+            margin-top: 1.5rem;
+        }
+
+        .btn {
+            border: none;
+            background: #2f3b60;
+            color: white;
+            font-weight: 600;
+            padding: 0.7rem 1.5rem;
+            border-radius: 60px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn:hover {
+            background: #3e4c78;
+            transform: scale(1.02);
+        }
+
+        footer {
+            text-align: center;
+            font-size: 0.7rem;
+            margin-top: 1.5rem;
+            color: #6e7b9e;
+        }
+
+        @media (max-width: 650px) {
+            body {
+                padding: 0.5rem;
+            }
+            .quiz-container {
+                padding: 1rem;
+                border-radius: 1.5rem;
+            }
+            .header h1 {
+                font-size: 1.5rem;
+            }
+            .question-card {
+                padding: 0.8rem 1rem;
+            }
+            .option {
+                padding: 0.4rem 0.6rem;
+            }
+            .option label {
+                font-size: 0.85rem;
+            }
+            .feedback {
+                font-size: 0.8rem;
+                padding: 0.5rem 0.7rem;
+            }
+            .score-bar {
+                font-size: 0.9rem;
+                padding: 0.5rem;
+            }
+            .btn {
+                padding: 0.6rem 1.2rem;
+                font-size: 0.85rem;
+            }
+        }
+
+        @media (max-width: 400px) {
+            .option label {
+                font-size: 0.8rem;
+            }
+            .question-text {
+                font-size: 0.9rem;
+            }
+            .instructions {
+                font-size: 0.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="quiz-container">
+    <div class="header">
+        <h1>🔧 Comparativa de Placas Arduino</h1>
+        <div class="sub">Cuestionario interactivo · Arquitecturas, especificaciones y aplicaciones</div>
+    </div>
+    <div class="instructions">
+        📘 <strong>Instrucciones:</strong> Selecciona la opción correcta para cada pregunta. Al elegir una respuesta, recibirás retroalimentación inmediata (✅ correcta / ❌ incorrecta) y verás la respuesta modelo. El contador de aciertos se actualiza automáticamente. Puedes reiniciar el cuestionario cuando lo desees.
+    </div>
+
+    <div class="score-bar" id="scoreDisplay">🎯 Aciertos: 0 / 20</div>
+
+    <div id="quizContainer"></div>
+
+    <div class="button-group">
+        <button id="resetBtn" class="btn">⟳ Reiniciar cuestionario</button>
+    </div>
+
+    <footer>📌 Basado en especificaciones oficiales de Arduino · Preguntas sobre Uno, Leonardo, Mega, Due, MKR y más.</footer>
+</div>
+
+<script>
+    // Preguntas, opciones, respuesta correcta y breve explicación
+    const questions = [
+        {
+            text: "¿Cuál es la principal diferencia de arquitectura entre el Arduino Uno R3 y el Arduino Uno R4 Minima?",
+            options: [
+                { value: "a", text: "El R3 tiene arquitectura ARM de 32 bits y el R4 es AVR de 8 bits" },
+                { value: "b", text: "El R3 es AVR de 8 bits y el R4 es ARM de 32 bits" },
+                { value: "c", text: "Ambos tienen arquitectura ARM de 32 bits" },
+                { value: "d", text: "El R3 es ARM de 32 bits y el R4 es AVR de 8 bits" }
+            ],
+            correct: "b",
+            explanation: "El Uno R3 utiliza el microcontrolador ATmega328P (AVR de 8 bits), mientras que el Uno R4 Minima emplea un Renesas RA4M1 (ARM Cortex-M4 de 32 bits)."
+        },
+        {
+            text: "¿Cuánta memoria Flash (programa) tiene el Arduino Uno R3?",
+            options: [
+                { value: "a", text: "256 KB" },
+                { value: "b", text: "512 KB" },
+                { value: "c", text: "32 KB" },
+                { value: "d", text: "8 KB" }
+            ],
+            correct: "c",
+            explanation: "El ATmega328P del Uno R3 tiene 32 KB de memoria Flash para el programa, de los cuales 0.5 KB se usan para el bootloader."
+        },
+        {
+            text: "¿Qué característica especial ofrece el Arduino Leonardo gracias a su microcontrolador ATmega32U4?",
+            options: [
+                { value: "a", text: "Mayor cantidad de pines digitales" },
+                { value: "b", text: "Capacidad de emular teclado y ratón por USB" },
+                { value: "c", text: "Conectividad WiFi integrada" },
+                { value: "d", text: "Voltaje de operación de 3.3 V" }
+            ],
+            correct: "b",
+            explanation: "El ATmega32U4 integra controlador USB nativo, permitiendo que el Leonardo se identifique como teclado, ratón u otro dispositivo HID."
+        },
+        {
+            text: "¿Cuál de las siguientes placas Arduino tiene la mayor cantidad de pines digitales de E/S?",
+            options: [
+                { value: "a", text: "Arduino Uno R3" },
+                { value: "b", text: "Arduino Nano" },
+                { value: "c", text: "Arduino Mega 2560" },
+                { value: "d", text: "Arduino Leonardo" }
+            ],
+            correct: "c",
+            explanation: "El Arduino Mega 2560 cuenta con 54 pines digitales de E/S, superando ampliamente a las demás placas."
+        },
+        {
+            text: "¿Qué placa Arduino fue la primera en incorporar un microcontrolador ARM de 32 bits?",
+            options: [
+                { value: "a", text: "Arduino Uno R4" },
+                { value: "b", text: "Arduino MKR WiFi 1010" },
+                { value: "c", text: "Arduino Due" },
+                { value: "d", text: "Arduino Leonardo" }
+            ],
+            correct: "c",
+            explanation: "El Arduino Due, lanzado en 2012, fue la primera placa oficial basada en un microcontrolador ARM de 32 bits (SAM3X8E)."
+        },
+        {
+            text: "¿Cuál es el voltaje de operación del Arduino Due y qué precaución debe tenerse?",
+            options: [
+                { value: "a", text: "5 V, compatible con todos los shields" },
+                { value: "b", text: "3.3 V, pero tolera 5 V en sus pines" },
+                { value: "c", text: "5 V, pero no tolera 3.3 V" },
+                { value: "d", text: "3.3 V, y sus pines NO son tolerantes a 5 V" }
+            ],
+            correct: "d",
+            explanation: "El Due opera a 3.3 V y sus pines no toleran 5 V, por lo que se deben usar adaptadores de nivel para conectar dispositivos de 5 V."
+        },
+        {
+            text: "¿Qué ventaja principal ofrece el Arduino MKR WiFi 1010 sobre las placas tradicionales?",
+            options: [
+                { value: "a", text: "Tiene 54 pines digitales" },
+                { value: "b", text: "Incluye conectividad WiFi y Bluetooth integrada" },
+                { value: "c", text: "Es la placa más rápida con 84 MHz" },
+                { value: "d", text: "Opera a 5 V y es compatible con todos los shields" }
+            ],
+            correct: "b",
+            explanation: "El MKR WiFi 1010 incorpora un módulo ESP32 que le brinda conectividad WiFi y Bluetooth, ideal para IoT."
+        },
+        {
+            text: "¿Cuántos pines digitales tiene el Arduino Nano?",
+            options: [
+                { value: "a", text: "54" },
+                { value: "b", text: "20" },
+                { value: "c", text: "14" },
+                { value: "d", text: "8" }
+            ],
+            correct: "c",
+            explanation: "El Arduino Nano (ATmega328) tiene 14 pines digitales de E/S, al igual que el Uno R3."
+        },
+        {
+            text: "¿Qué placa es ideal para proyectos que requieren múltiples puertos seriales hardware (UART) y una gran cantidad de pines?",
+            options: [
+                { value: "a", text: "Arduino Uno R4 WiFi" },
+                { value: "b", text: "Arduino Mega 2560" },
+                { value: "c", text: "Arduino Micro" },
+                { value: "d", text: "Arduino MKR WiFi 1010" }
+            ],
+            correct: "b",
+            explanation: "El Mega 2560 ofrece 4 puertos UART hardware y 54 pines digitales, ideal para sistemas complejos."
+        },
+        {
+            text: "¿Cuál de las siguientes afirmaciones sobre el Arduino Uno R4 WiFi es correcta?",
+            options: [
+                { value: "a", text: "Mantiene el mismo microcontrolador ATmega328P que el R3" },
+                { value: "b", text: "No es compatible físicamente con los shields del Uno R3" },
+                { value: "c", text: "Incluye una matriz de LEDs programables 8×8 y conectividad inalámbrica" },
+                { value: "d", text: "Opera a 3.3 V" }
+            ],
+            correct: "c",
+            explanation: "El Uno R4 WiFi integra una matriz de LEDs 8×8 y un módulo ESP32 para WiFi/Bluetooth, además de mantener compatibilidad con shields."
+        },
+        {
+            text: "¿Qué tipo de conector USB utiliza el Arduino Micro?",
+            options: [
+                { value: "a", text: "USB tipo B estándar" },
+                { value: "b", text: "Mini-USB" },
+                { value: "c", text: "Micro-USB" },
+                { value: "d", text: "USB tipo C" }
+            ],
+            correct: "c",
+            explanation: "El Arduino Micro utiliza un conector Micro-USB para programación y comunicación."
+        },
+        {
+            text: "¿Cuánta memoria SRAM (RAM) tiene el Arduino Due?",
+            options: [
+                { value: "a", text: "2 KB" },
+                { value: "b", text: "8 KB" },
+                { value: "c", text: "32 KB" },
+                { value: "d", text: "96 KB" }
+            ],
+            correct: "d",
+            explanation: "El microcontrolador SAM3X8E del Due dispone de 96 KB de SRAM."
+        },
+        {
+            text: "¿Para qué tipo de aplicaciones es especialmente adecuado el Arduino MKR WiFi 1010 según el material?",
+            options: [
+                { value: "a", text: "Impresoras 3D y sistemas CNC" },
+                { value: "b", text: "Proyectos de Internet de las Cosas (IoT) y bajo consumo" },
+                { value: "c", text: "Emulación de teclado y ratón" },
+                { value: "d", text: "Proyectos que requieren 54 pines digitales" }
+            ],
+            correct: "b",
+            explanation: "Su diseño compacto, bajo consumo y conectividad inalámbrica lo hacen ideal para IoT y dispositivos portátiles."
+        },
+        {
+            text: "¿Qué placa tiene el mismo microcontrolador y capacidades que el Arduino Leonardo, pero en un formato más pequeño?",
+            options: [
+                { value: "a", text: "Arduino Nano" },
+                { value: "b", text: "Arduino Micro" },
+                { value: "c", text: "Arduino Uno R4 Minima" },
+                { value: "d", text: "Arduino MKR WiFi 1010" }
+            ],
+            correct: "b",
+            explanation: "El Arduino Micro utiliza el mismo ATmega32U4 que el Leonardo, pero en un tamaño reducido, manteniendo la capacidad HID."
+        },
+        {
+            text: "¿Cuál es la frecuencia de reloj del Arduino Due?",
+            options: [
+                { value: "a", text: "16 MHz" },
+                { value: "b", text: "48 MHz" },
+                { value: "c", text: "84 MHz" },
+                { value: "d", text: "240 MHz" }
+            ],
+            correct: "c",
+            explanation: "El SAM3X8E del Due funciona a 84 MHz, ofreciendo un rendimiento superior a las placas AVR."
+        },
+        {
+            text: "¿Qué placa Arduino utiliza un microcontrolador Renesas RA4M1 de 32 bits y está disponible en versiones Minima y WiFi?",
+            options: [
+                { value: "a", text: "Arduino Mega 2560" },
+                { value: "b", text: "Arduino Uno R4" },
+                { value: "c", text: "Arduino Due" },
+                { value: "d", text: "Arduino Leonardo" }
+            ],
+            correct: "b",
+            explanation: "El Arduino Uno R4 (tanto Minima como WiFi) está basado en el Renesas RA4M1 de 32 bits."
+        },
+        {
+            text: "¿Cuántas entradas analógicas posee el Arduino Mega 2560?",
+            options: [
+                { value: "a", text: "6" },
+                { value: "b", text: "12" },
+                { value: "c", text: "16" },
+                { value: "d", text: "8" }
+            ],
+            correct: "c",
+            explanation: "El Mega 2560 tiene 16 entradas analógicas, más que cualquier otra placa Arduino estándar."
+        },
+        {
+            text: "¿Qué característica diferencia al Arduino Leonardo del Arduino Uno R3 en términos de comunicación USB?",
+            options: [
+                { value: "a", text: "El Leonardo tiene USB integrado en el microcontrolador, permitiendo emulación HID" },
+                { value: "b", text: "El Leonardo utiliza un chip USB-serial externo" },
+                { value: "c", text: "El Leonardo no puede ser programado por USB" },
+                { value: "d", text: "El Leonardo requiere un adaptador externo para comunicarse" }
+            ],
+            correct: "a",
+            explanation: "El Leonardo (ATmega32U4) integra el controlador USB, permitiendo actuar como teclado, ratón o dispositivo HID sin chip adicional."
+        },
+        {
+            text: "¿Cuál es la capacidad de memoria Flash del Arduino Uno R4 Minima?",
+            options: [
+                { value: "a", text: "32 KB" },
+                { value: "b", text: "256 KB" },
+                { value: "c", text: "512 KB" },
+                { value: "d", text: "1 MB" }
+            ],
+            correct: "b",
+            explanation: "El Renesas RA4M1 del Uno R4 Minima cuenta con 256 KB de Flash para el programa."
+        },
+        {
+            text: "¿Qué placa es recomendada cuando se necesita la máxima cantidad de pines I/O digitales y analógicos sin cambiar a arquitectura ARM?",
+            options: [
+                { value: "a", text: "Arduino Due" },
+                { value: "b", text: "Arduino Uno R4 WiFi" },
+                { value: "c", text: "Arduino Mega 2560" },
+                { value: "d", text: "Arduino MKR WiFi 1010" }
+            ],
+            correct: "c",
+            explanation: "El Mega 2560 sigue siendo la mejor opción dentro de la familia AVR cuando se requieren muchos pines (54 digitales, 16 analógicos)."
+        }
+    ];
+
+    let userSelections = new Array(20).fill(null);
+    let correctCount = 0;
+
+    function updateScore() {
+        document.getElementById('scoreDisplay').innerHTML = `🎯 Aciertos: ${correctCount} / 20`;
+    }
+
+    function recalcScore() {
+        let count = 0;
+        for (let i = 0; i < questions.length; i++) {
+            if (userSelections[i] === questions[i].correct) count++;
+        }
+        correctCount = count;
+        updateScore();
+    }
+
+    function showFeedback(index, selectedValue, feedbackDiv) {
+        const q = questions[index];
+        const isCorrect = (selectedValue === q.correct);
+        feedbackDiv.innerHTML = '';
+        feedbackDiv.classList.remove('correct', 'incorrect');
+
+        const iconSpan = document.createElement('span');
+        iconSpan.className = 'feedback-icon';
+        const messageSpan = document.createElement('span');
+        messageSpan.style.flex = '1';
+
+        if (isCorrect) {
+            feedbackDiv.classList.add('correct');
+            iconSpan.textContent = '✅';
+            messageSpan.innerHTML = `<strong>¡Correcto!</strong> ${q.explanation}`;
+        } else {
+            feedbackDiv.classList.add('incorrect');
+            iconSpan.textContent = '❌';
+            const correctOption = q.options.find(opt => opt.value === q.correct);
+            const correctText = correctOption ? correctOption.text : q.correct;
+            messageSpan.innerHTML = `<strong>Incorrecto.</strong> La respuesta correcta es: "${correctText}".<br>${q.explanation}`;
+        }
+        feedbackDiv.appendChild(iconSpan);
+        feedbackDiv.appendChild(messageSpan);
+    }
+
+    function createQuestionCard(index, q) {
+        const card = document.createElement('div');
+        card.className = 'question-card';
+        card.id = `qcard-${index}`;
+
+        const qNumSpan = document.createElement('span');
+        qNumSpan.className = 'q-num';
+        qNumSpan.textContent = `Pregunta ${index+1}`;
+        const questionTextDiv = document.createElement('div');
+        questionTextDiv.className = 'question-text';
+        questionTextDiv.appendChild(qNumSpan);
+        questionTextDiv.appendChild(document.createTextNode(` ${q.text}`));
+        card.appendChild(questionTextDiv);
+
+        const optionsDiv = document.createElement('div');
+        optionsDiv.className = 'options';
+
+        q.options.forEach(opt => {
+            const optionDiv = document.createElement('div');
+            optionDiv.className = 'option';
+
+            const radio = document.createElement('input');
+            radio.type = 'radio';
+            radio.name = `q${index}`;
+            radio.value = opt.value;
+            radio.id = `q${index}_${opt.value}`;
+
+            const label = document.createElement('label');
+            label.htmlFor = radio.id;
+            label.textContent = opt.text;
+
+            optionDiv.appendChild(radio);
+            optionDiv.appendChild(label);
+            optionsDiv.appendChild(optionDiv);
+
+            radio.addEventListener('change', (e) => {
+                userSelections[index] = e.target.value;
+                recalcScore();
+                const feedbackDiv = document.getElementById(`feedback-${index}`);
+                showFeedback(index, e.target.value, feedbackDiv);
+            });
+
+            if (userSelections[index] === opt.value) {
+                radio.checked = true;
+            }
+        });
+
+        card.appendChild(optionsDiv);
+
+        const feedbackDiv = document.createElement('div');
+        feedbackDiv.className = 'feedback';
+        feedbackDiv.id = `feedback-${index}`;
+        card.appendChild(feedbackDiv);
+
+        if (userSelections[index] !== null) {
+            showFeedback(index, userSelections[index], feedbackDiv);
+        }
+
+        return card;
+    }
+
+    function renderQuiz() {
+        const container = document.getElementById('quizContainer');
+        container.innerHTML = '';
+        questions.forEach((q, idx) => {
+            container.appendChild(createQuestionCard(idx, q));
+        });
+    }
+
+    function resetQuiz() {
+        userSelections = new Array(20).fill(null);
+        correctCount = 0;
+        updateScore();
+        renderQuiz();
+    }
+
+    renderQuiz();
+    updateScore();
+
+    document.getElementById('resetBtn').addEventListener('click', resetQuiz);
+</script>
+</body>
+</html>
